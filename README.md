@@ -1,6 +1,47 @@
-# Oracle TNS Hostname 조회 독립 테스트
+# Oracle TNS/SQL*Plus 단독 모듈 1차 테스트
 
 이 디렉터리는 NETSCOUT 전체 프로젝트를 실행하지 않고 Oracle TNS 접속과 IP별 Hostname 조회만 검증하기 위한 독립 테스트 패키지다.
+
+## 1차 테스트 범위
+
+이번 1차 테스트는 자동화 전체 연동이 아니라 다음 두 항목만 독립적으로 검증한다.
+
+1. SQL*Plus에서 `tnsnames.ora`의 TNS 별칭으로 Oracle 로그인이 정상적으로 되는가
+2. 설정한 IP 기반 Hostname 조회 SQL이 정상 실행되고 결과 또는 `NO_DATA`를 반환하는가
+
+단일 실행 파일 `tools/oracle_tns_query_check.py`가 SQL*Plus 확인, TNS 로그인, 쿼리 실행을 순서대로 수행한다.
+
+Windows PowerShell:
+
+```powershell
+python .\tools\oracle_tns_query_check.py `
+  --config .\config\oracle_test.yaml `
+  --ip 192.168.0.10
+```
+
+Ubuntu:
+
+```bash
+python3 tools/oracle_tns_query_check.py \
+  --config config/oracle_test.yaml \
+  --ip 192.168.0.10
+```
+
+Ubuntu 설치와 실행 방법은 `UBUNTU_GUIDE.md`를 참고한다.
+
+Docker Oracle 11g XE Lab에서 수행한 1차 검증 결과:
+
+```text
+step=SQLPLUS status=OK version=SQL*Plus 19.33
+step=TNS_LOGIN status=OK alias=NETSCOUT_11G_LAB
+step=QUERY status=OK ip=192.168.0.10 result=md-feed-gw-01
+overall=PASS
+```
+
+- SQL*Plus 19.33 → Docker Oracle XE 11g R2 연결 성공
+- 존재하는 IP의 Hostname 조회 성공
+- 미존재 IP는 SQL 오류가 아닌 `QUERY status=NO_DATA`로 구분
+- 단위 테스트 8개 통과(전체 단독 모듈 기준)
 
 ## 검증된 프로그램 및 패키지 버전
 

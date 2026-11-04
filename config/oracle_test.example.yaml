@@ -1,0 +1,17 @@
+oracle:
+  # Instant Client Basic과 SQL*Plus를 같은 폴더에 압축 해제한 뒤 지정합니다.
+  sqlplus_exe: "C:/oracle/instantclient_19_23/sqlplus.exe"
+  username: "NETSCOUT_TEST"
+  connect_identifier: "NETSCOUT_ORACLE"
+  tns_admin: "./oracle_network"
+  password_file: "./oracle.password"
+  timeout_seconds: 120
+  nls_lang: "KOREAN_KOREA.AL32UTF8"
+
+query:
+  # 실제 테이블/컬럼명으로 수정합니다. {{IP}}는 정확히 한 번 필요합니다.
+  sql: >-
+    SELECT HOSTNAME
+    FROM HOSTNAME_LOOKUP
+    WHERE IP_ADDRESS = '{{IP}}'
+      AND ROWNUM = 1

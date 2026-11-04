@@ -3,5 +3,8 @@ config/oracle_network/tnsnames.ora
 tools/oracle/instantclient_*/
 output/*
 !output/.gitkeep
+config/oracle_test.yaml
+config/oracle.password
+config/oracle_network/tnsnames.ora
 __pycache__/
 *.pyc
