@@ -2,6 +2,30 @@
 
 이 디렉터리는 NETSCOUT 전체 프로젝트를 실행하지 않고 Oracle TNS 접속과 IP별 Hostname 조회만 검증하기 위한 독립 테스트 패키지다.
 
+## 검증된 프로그램 및 패키지 버전
+
+아래 버전은 NETSCOUT 자동화 v0.90에서 분리한 시점과 2026-11-05 독립 테스트에서 확인한 값이다.
+
+| 구분 | 프로그램/패키지 | 검증 버전 | 용도/비고 |
+|---|---|---:|---|
+| Runtime | Python | 3.12.3 | Oracle 조회 도구 실행 |
+| Oracle Client | Oracle Instant Client Basic | 19.33.0.0.0 | GitHub 미포함, Oracle에서 별도 다운로드 |
+| Oracle Client | SQL*Plus | 19.33.0.0.0 | TNS 접속 및 SQL 실행 |
+| Test DB | Oracle Database XE 11g R2 | 11.2.0.2.0 | Docker Lab에서 기능 검증 |
+| Container | Docker Desktop Engine | 29.6.1 | Lab 컨테이너 실행 |
+| Container | Docker Compose | 5.3.0 | Lab 구성 실행 |
+| Python | PyYAML | 6.0.2 | YAML 설정 및 후보 입력 처리 |
+| Python | openpyxl | 3.1.5 | 조회 결과 Excel 생성 |
+| Python | requests | 2.32.3 | 공통 Hostname 조회 모듈 의존성 |
+| Python | urllib3 | 2.3.0 | requests 의존성 |
+| Python | certifi | 2024.12.14 | CA 인증서 번들 |
+| Python | charset-normalizer | 3.4.1 | HTTP 문자 인코딩 처리 |
+| Python | idna | 3.10 | 국제화 도메인 처리 |
+
+`vendor`에는 위 Python 패키지가 포함되어 있어 별도 `pip install` 없이 실행할 수 있다. 포함된 `.pyd` 파일은 CPython 3.12 Windows x64 기준이므로 다른 Python 또는 운영체제에서는 해당 환경에 맞게 패키지를 다시 설치해야 한다.
+
+Instant Client 19c의 공식 최소 Oracle DB 서버 버전은 11.2.0.4이다. Lab의 11.2.0.2에는 기능상 접속과 조회가 성공했지만 Oracle 공식 지원 조합은 아니다. 운영 DB 버전과 공식 호환성은 별도로 확인한다.
+
 ## 포함 파일
 
 ```text
