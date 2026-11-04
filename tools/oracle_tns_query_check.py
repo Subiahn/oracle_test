@@ -43,7 +43,14 @@ def load_config(path: Path) -> dict[str, Any]:
     executable = str(oracle.get("sqlplus_exe") or "sqlplus").strip()
     password_file = str(oracle.get("password_file") or "").strip()
     tns_admin = str(oracle.get("tns_admin") or "").strip()
-    sql = str(query.get("sql") or "").strip().rstrip(";").rstrip()
+    sql = str(query.get("sql") or "").strip()
+    sql_file_raw = str(query.get("sql_file") or "").strip()
+    if sql_file_raw:
+        sql_file = resolve(path, sql_file_raw)
+        if not sql_file.is_file():
+            raise CheckError(f"Query SQL file not found: {sql_file}")
+        sql = sql_file.read_text(encoding="utf-8").strip()
+    sql = sql.rstrip(";").rstrip()
     if not SAFE_USERNAME.fullmatch(username):
         raise CheckError("oracle.username is missing or invalid")
     if not connect_identifier or any(c in connect_identifier for c in "\r\n"):
@@ -63,6 +70,7 @@ def load_config(path: Path) -> dict[str, Any]:
         "nls_lang": str(oracle.get("nls_lang") or "").strip(),
         "timeout": int(oracle.get("timeout_seconds", 120)),
         "sql": sql,
+        "sql_source": str(resolve(path, sql_file_raw)) if sql_file_raw else "inline query.sql",
     }
 
 
@@ -168,6 +176,7 @@ def check(config_path: Path, password_file: Path | None, ip: str) -> int:
         print(f"step=QUERY status=OK ip={ip} result={value}")
     else:
         print(f"step=QUERY status=NO_DATA ip={ip} result=")
+    print(f"query_source={config['sql_source']}")
     print("overall=PASS")
     return 0
 

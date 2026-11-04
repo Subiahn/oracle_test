@@ -76,12 +76,19 @@ oracle:
   nls_lang: "KOREAN_KOREA.AL32UTF8"
 
 query:
-  sql: >-
-    SELECT HOSTNAME
-    FROM HOSTNAME_LOOKUP
-    WHERE IP_ADDRESS = '{{IP}}'
-      AND ROWNUM = 1
+  sql_file: "../query/hostname_lookup.sql"
 ```
+
+실제 쿼리는 `query/hostname_lookup.sql`에 작성합니다.
+
+```sql
+SELECT HOSTNAME
+FROM HOSTNAME_LOOKUP
+WHERE IP_ADDRESS = '{{IP}}'
+  AND ROWNUM = 1
+```
+
+`tnsnames.ora`의 `HOST`는 Oracle DB 서버 IP이고, 명령의 `--ip`는 위 SQL의 `{{IP}}`에 들어갈 조회 대상 IP입니다.
 
 `config/oracle.password`에는 실제 비밀번호만 한 줄로 기록합니다.
 

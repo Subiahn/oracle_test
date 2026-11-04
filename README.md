@@ -11,6 +11,17 @@
 
 단일 실행 파일 `tools/oracle_tns_query_check.py`가 SQL*Plus 확인, TNS 로그인, 쿼리 실행을 순서대로 수행한다.
 
+실제 조회 SQL은 `query/hostname_lookup.sql`에 들어 있다. 운영 테이블명과 컬럼명에 맞게 이 파일을 수정한 후 테스트한다.
+
+```sql
+SELECT HOSTNAME
+FROM HOSTNAME_LOOKUP
+WHERE IP_ADDRESS = '{{IP}}'
+  AND ROWNUM = 1
+```
+
+`{{IP}}`는 실행 시 전달한 `--ip` 값으로 치환된다. 이 IP는 Oracle 서버 접속 주소가 아니라 Hostname을 찾을 대상 IP다. Oracle 서버의 주소는 `config/oracle_network/tnsnames.ora`의 `HOST`에 별도로 설정한다.
+
 Windows PowerShell:
 
 ```powershell

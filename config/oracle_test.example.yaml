@@ -9,9 +9,6 @@ oracle:
   nls_lang: "KOREAN_KOREA.AL32UTF8"
 
 query:
-  # 실제 테이블/컬럼명으로 수정합니다. {{IP}}는 정확히 한 번 필요합니다.
-  sql: >-
-    SELECT HOSTNAME
-    FROM HOSTNAME_LOOKUP
-    WHERE IP_ADDRESS = '{{IP}}'
-      AND ROWNUM = 1
+  # config 디렉터리를 기준으로 한 경로입니다.
+  # SQL 파일의 {{IP}}는 --ip 값으로 치환됩니다.
+  sql_file: "../query/hostname_lookup.sql"
