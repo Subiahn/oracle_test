@@ -15,11 +15,11 @@ def test_build_script_contains_tns_login_and_query() -> None:
     config = {
         "username": "TEST_USER",
         "connect_identifier": "TESTDB",
-        "sql": "SELECT HOSTNAME FROM HOSTS WHERE IP = '{{IP}}'",
+        "sql": "SELECT 'QUERY_EXECUTED' FROM DUAL",
     }
-    script = check.build_script(config, "secret", "192.168.0.10")
+    script = check.build_script(config, "secret")
     assert 'CONNECT TEST_USER/"secret"@TESTDB' in script
-    assert "WHERE IP = '192.168.0.10'" in script
+    assert "SELECT 'QUERY_EXECUTED' FROM DUAL" in script
     assert "__TNS_LOGIN_OK__" in script
 
 
@@ -37,7 +37,7 @@ def test_load_config_reads_external_sql_file(tmp_path: Path) -> None:
     query_dir = tmp_path / "query"
     query_dir.mkdir()
     (query_dir / "lookup.sql").write_text(
-        "SELECT HOSTNAME FROM HOSTS WHERE IP_ADDRESS = '{{IP}}';\n",
+        "SELECT 'QUERY_EXECUTED' FROM DUAL;\n",
         encoding="utf-8",
     )
     config = tmp_path / "oracle.yaml"
@@ -51,13 +51,13 @@ def test_load_config_reads_external_sql_file(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     loaded = check.load_config(config)
-    assert loaded["sql"] == "SELECT HOSTNAME FROM HOSTS WHERE IP_ADDRESS = '{{IP}}'"
+    assert loaded["sql"] == "SELECT 'QUERY_EXECUTED' FROM DUAL"
     assert loaded["sql_source"].endswith("lookup.sql")
 
 
-def test_load_config_rejects_sql_without_ip_placeholder(tmp_path: Path) -> None:
+def test_load_config_rejects_empty_sql(tmp_path: Path) -> None:
     sql_file = tmp_path / "query.sql"
-    sql_file.write_text("SELECT 1 FROM DUAL\n", encoding="utf-8")
+    sql_file.write_text("\n", encoding="utf-8")
     config = tmp_path / "oracle.yaml"
     config.write_text(
         "oracle:\n"
@@ -67,5 +67,5 @@ def test_load_config_rejects_sql_without_ip_placeholder(tmp_path: Path) -> None:
         "  sql_file: query.sql\n",
         encoding="utf-8",
     )
-    with pytest.raises(check.CheckError, match="placeholder"):
+    with pytest.raises(check.CheckError, match="empty"):
         check.load_config(config)

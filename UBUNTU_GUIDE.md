@@ -82,13 +82,10 @@ query:
 실제 쿼리는 `query/hostname_lookup.sql`에 작성합니다.
 
 ```sql
-SELECT HOSTNAME
-FROM HOSTNAME_LOOKUP
-WHERE IP_ADDRESS = '{{IP}}'
-  AND ROWNUM = 1
+SELECT 'QUERY_EXECUTED' FROM DUAL
 ```
 
-`tnsnames.ora`의 `HOST`는 Oracle DB 서버 IP이고, 명령의 `--ip`는 위 SQL의 `{{IP}}`에 들어갈 조회 대상 IP입니다.
+`tnsnames.ora`의 `HOST`는 Oracle DB 서버 IP입니다. 테스트할 SQL과 조건값은 SQL 파일에 직접 작성하며 별도 IP 옵션은 사용하지 않습니다.
 
 `config/oracle.password`에는 실제 비밀번호만 한 줄로 기록합니다.
 
@@ -111,8 +108,7 @@ DB가 `SERVICE_NAME` 대신 `SID`를 제공했다면 `(SERVICE_NAME = ORCL)`을 
 
 ```bash
 python tools/oracle_tns_query_check.py \
-  --config config/oracle_test.yaml \
-  --ip 192.168.0.10
+  --config config/oracle_test.yaml
 ```
 
 정상 결과 예시:
@@ -120,18 +116,18 @@ python tools/oracle_tns_query_check.py \
 ```text
 step=SQLPLUS status=OK version=SQL*Plus: Release 19...
 step=TNS_LOGIN status=OK alias=NETSCOUT_ORACLE
-step=QUERY status=OK ip=192.168.0.10 result=host-a
+step=QUERY status=OK result=QUERY_EXECUTED
 overall=PASS
 ```
 
 쿼리는 정상이나 데이터가 없는 경우:
 
 ```text
-step=QUERY status=NO_DATA ip=203.0.113.99 result=
+step=QUERY status=NO_DATA result=
 overall=PASS
 ```
 
-`NO_DATA`는 SQL 오류가 아닙니다. 해당 IP에 대응하는 행이 없다는 뜻입니다.
+`NO_DATA`는 SQL 오류가 아니라 작성한 쿼리가 결과 행을 반환하지 않았다는 뜻입니다.
 
 ## 5. 오류 구분
 

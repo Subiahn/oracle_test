@@ -10,5 +10,5 @@ oracle:
 
 query:
   # config 디렉터리를 기준으로 한 경로입니다.
-  # SQL 파일의 {{IP}}는 --ip 값으로 치환됩니다.
+  # SQL 파일을 직접 수정한 후 실행합니다.
   sql_file: "../query/hostname_lookup.sql"

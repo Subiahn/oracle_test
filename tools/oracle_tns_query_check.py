@@ -7,7 +7,6 @@ Windows와 Ubuntu에서 동일하게 동작하며 Oracle Python 드라이버는 
 from __future__ import annotations
 
 import argparse
-import ipaddress
 import os
 import re
 import subprocess
@@ -55,8 +54,8 @@ def load_config(path: Path) -> dict[str, Any]:
         raise CheckError("oracle.username is missing or invalid")
     if not connect_identifier or any(c in connect_identifier for c in "\r\n"):
         raise CheckError("oracle.connect_identifier is missing or invalid")
-    if sql.count("{{IP}}") != 1:
-        raise CheckError("query.sql must contain exactly one {{IP}} placeholder")
+    if not sql:
+        raise CheckError("Query SQL is empty")
     # A bare command such as 'sqlplus' is resolved by PATH; paths are config-relative.
     sqlplus: str | Path = executable
     if "/" in executable or "\\" in executable:
@@ -115,9 +114,8 @@ def quote_password(password: str) -> str:
     return '"' + password.replace('"', '""') + '"'
 
 
-def build_script(config: dict[str, Any], password: str, ip: str) -> str:
-    normalized = str(ipaddress.ip_address(ip))
-    sql = config["sql"].replace("{{IP}}", normalized)
+def build_script(config: dict[str, Any], password: str) -> str:
+    sql = config["sql"]
     return "\n".join(
         [
             "SET HEADING OFF",
@@ -155,7 +153,7 @@ def extract_result(stdout: str) -> tuple[bool, str]:
     return login_ok, values[0] if values else ""
 
 
-def check(config_path: Path, password_file: Path | None, ip: str) -> int:
+def check(config_path: Path, password_file: Path | None) -> int:
     config = load_config(config_path.resolve())
     version = invoke(config, ["-v"])
     if version.returncode != 0:
@@ -164,7 +162,7 @@ def check(config_path: Path, password_file: Path | None, ip: str) -> int:
     print(f"step=SQLPLUS status=OK version={version_text}")
 
     password = read_password(config, password_file)
-    completed = invoke(config, ["-s", "/nolog"], build_script(config, password, ip))
+    completed = invoke(config, ["-s", "/nolog"], build_script(config, password))
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout).strip()[-1200:]
         raise CheckError(f"TNS login or query failed (exit={completed.returncode}): {detail}")
@@ -173,9 +171,9 @@ def check(config_path: Path, password_file: Path | None, ip: str) -> int:
         raise CheckError("SQL*Plus returned no TNS login success marker")
     print(f"step=TNS_LOGIN status=OK alias={config['connect_identifier']}")
     if value:
-        print(f"step=QUERY status=OK ip={ip} result={value}")
+        print(f"step=QUERY status=OK result={value}")
     else:
-        print(f"step=QUERY status=NO_DATA ip={ip} result=")
+        print("step=QUERY status=NO_DATA result=")
     print(f"query_source={config['sql_source']}")
     print("overall=PASS")
     return 0
@@ -185,14 +183,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Check SQL*Plus, Oracle TNS login, and hostname query")
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--password-file", type=Path)
-    parser.add_argument("--ip", required=True)
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
-        return check(args.config, args.password_file, args.ip)
+        return check(args.config, args.password_file)
     except (CheckError, OSError, ValueError, yaml.YAMLError) as exc:
         print(f"overall=FAIL error={exc}", file=sys.stderr)
         return 1
