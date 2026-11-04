@@ -1,0 +1,21 @@
+oracle:
+  connect_identifier: "NETSCOUT_11G_LAB"
+  username: "NETSCOUT_LAB"
+  tns_admin: "oracle_network"
+  nls_lang: "KOREAN_KOREA.AL32UTF8"
+  sqlplus_command:
+    - "tools/oracle/instantclient_19_33/sqlplus.exe"
+    - "-s"
+    - "/nolog"
+  password_file: "oracle_hostname.password"
+  timeout: 180
+
+query:
+  sql: >-
+    SELECT HOSTNAME
+    FROM HOSTNAME_LOOKUP
+    WHERE IP_ADDRESS = '{{IP}}'
+      AND ROWNUM = 1
+
+output:
+  source_name: "Oracle 11g TNS Lab via Instant Client 19c"

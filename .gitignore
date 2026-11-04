@@ -1,0 +1,7 @@
+config/oracle_hostname.password
+config/oracle_network/tnsnames.ora
+tools/oracle/instantclient_*/
+output/*
+!output/.gitkeep
+__pycache__/
+*.pyc
